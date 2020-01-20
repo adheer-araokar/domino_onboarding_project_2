@@ -1,17 +1,4 @@
-# from highcharts import Highmap
-#
-# # A chart is the container that your data will be rendered in, it can (obviously) support multiple data series within it
-# chart = Highmap()
-#
-#
-# def plot_from(data_sink):
-#     # Adding a series requires a minimum of one argument, an array of data points
-#     chart.add_data_set(data_sink, series_type='map', name='World Co-ordinates', is_coordinate=True)
-#
-#
-#     # This will generate and save a .html file at the location you assign
-#     chart.save_file(filename='server/templates/plot')
-#     return
+
 
 import numpy as np
 import matplotlib.pyplot as plt
