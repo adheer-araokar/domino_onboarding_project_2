@@ -1,7 +1,6 @@
 from pymongo import MongoClient
 
 from message.base_message import Message
-from bson import json_util
 
 client = MongoClient('localhost', 27017)
 db = client["test_db"]
@@ -21,26 +20,20 @@ def get_mongo_client():
     return client
 
 
-def add_car_location(message: Message, host_name: str):
-    rec = car_collection.find_one({"key": host_name})
+def add_car_location(message: Message):
+    rec = car_collection.find_one({"key": message.key})
     if rec is None:
-        print("new"+message.key)
-        car_collection.insert_one({"key": host_name, "locations": {message.key: [message.value]}})
+        car_collection.insert_one({"key": message.key, "locations": [message.value]})
     else:
-        all_cars = rec["locations"]
-        if message.key in all_cars.keys():
-            locations = rec["locations"][message.key]
-            locations.append(message.value)
-        else:
-            locations = [message.value]
-        car_collection.update_one({"key": host_name}, {"$set": {"locations."+message.key: locations}})
+        locations = rec["locations"]
+        locations.append(message.value)
+        car_collection.update_one({"key": message.key}, {"$set": {"locations": locations}})
 
 
 def get_car_data_for_key(key: str):
-    recs = car_collection.find({"locations."+key: {"$exists": True}})
-    resp = {"locations": []}
-    locations = resp["locations"]
-    for rec in recs:
-        if rec["locations"][key] is not None:
-            locations.extend(rec["locations"][key])
-    return json_util.dumps(resp)
+    rec = car_collection.find_one({"key": key})
+    if rec is None:
+        resp = {"locations": []}
+    else:
+        resp = {"locations": rec["locations"]}
+    return resp

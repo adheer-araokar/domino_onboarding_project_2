@@ -1,4 +1,5 @@
 import connexion
+from bson import json_util
 
 from flask import Blueprint, Response
 
@@ -7,7 +8,7 @@ from db.db import get_car_data_for_key
 api_v1 = Blueprint('api', 'api', url_prefix='/api/v1')
 
 
-@api_v1.route('/get_car_data', methods=['POST'])
+@api_v1.route('/get_car_data', methods=['GET'])
 def get_car_data(body=None):
 
     if connexion.request.is_json:
@@ -24,6 +25,6 @@ def get_car_data_internal(body):
 
     try:
         key = body["car_name"]
-        return Response(response=get_car_data_for_key(key), status=200, mimetype="application/json")
+        return Response(response=json_util.dumps(get_car_data_for_key(key)), status=200, mimetype="application/json")
     except Exception as e:
         return Response(str(e), status=400)

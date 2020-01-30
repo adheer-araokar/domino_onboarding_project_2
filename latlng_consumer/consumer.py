@@ -15,24 +15,19 @@ class Consumer:
                                       value_deserializer=deserialize_message,
                                       group_id='same_grp',
                                       # auto_offset_reset='earliest',
-                                      enable_auto_commit=True)
+                                      enable_auto_commit=False)
         self.consumer.subscribe([kafka_global_config.TOPIC])
 
-    def consume_message(self, data_sink, host_name):
+    def consume_message(self):
         for message in self.consumer:
             if isinstance(message.value, Message):
                 car_data = message.value
-                data = {"name": car_data.key, "lat": car_data.value["lat"], "lon": car_data.value["lng"]}
-                data_sink.append(data)
-                add_car_location(car_data, host_name)
+                add_car_location(car_data)
+                self.consumer.commit()
             else:
                 print("problem")
 
 
-def consume(sink=None, name=None):
+def consume():
     consumer_internal = Consumer()
-    if sink is None:
-        sink = []
-    if name is None:
-        name = uuid.uuid4()
-    consumer_internal.consume_message(sink, name)
+    consumer_internal.consume_message()

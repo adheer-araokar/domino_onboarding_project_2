@@ -1,5 +1,3 @@
-
-
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
@@ -8,7 +6,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import io
 from flask import Response
 
-
+from db.db import get_car_data_for_key
 
 plt.switch_backend('Agg')
 
@@ -32,7 +30,9 @@ def draw_map(m, scale=1.0):
         line.set(linestyle='-', alpha=0.3, color='w')
 
 
-def plot_from(data_sink):
+def plot_from(car_name):
+    records = get_car_data_for_key(car_name)
+    locations = records["locations"]
 
     # fig = plt.figure(figsize=(8, 8), edgecolor='w', frameon=False)
     # fig = plt.figure(1, figsize=(8, 14), frameon=True, dpi=100)
@@ -43,11 +43,11 @@ def plot_from(data_sink):
 
     draw_map(m)
 
-    for data in data_sink:
-        x, y = m(data["lat"], data["lon"])
+    for data in locations:
+        x, y = m(data["lat"], data["lng"])
         # plt.plot(x, y, 'ok', markersize=5)
         plt.plot(x, y)
-        plt.text(x, y, data["name"], fontsize=6)
+        plt.text(x, y, car_name, fontsize=6)
 
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)
