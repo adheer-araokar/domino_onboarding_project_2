@@ -21,13 +21,7 @@ def get_mongo_client():
 
 
 def add_car_location(message: Message):
-    rec = car_collection.find_one({"key": message.key})
-    if rec is None:
-        car_collection.insert_one({"key": message.key, "locations": [message.value]})
-    else:
-        locations = rec["locations"]
-        locations.append(message.value)
-        car_collection.update_one({"key": message.key}, {"$set": {"locations": locations}})
+    car_collection.update({"key": message.key}, {"$push": {"locations": message.value}}, upsert=True)
 
 
 def get_car_data_for_key(key: str):
